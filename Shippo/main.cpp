@@ -1,55 +1,61 @@
-#include<iostream>
-#include<stdio.h>
-#include<math.h>
-#include<vector>
-#include<SDL.h>
-#include<glad/glad.h>
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <SDL.h>
+#include <glad/glad.h>
 
 //rozmiary ekranu
-const int Screen_Width = 1280;
-const int Screen_Height = 920;
+const int screen_width = 1280;
+const int screen_height = 920;
 
 int main(int argc, char* args[])
 {
- //Okno w którym renderowane bêd¹ obiekty
+ 	// Okno w którym renderowane bêd¹ obiekty
 	SDL_Window* window = NULL;
+	SDL_Surface* screen_surface = NULL;
 
-	SDL_Surface* screenSurface = NULL;
-
-	//Inicjalizacja SDL
+	// Inicjalizacja SDL
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
 		std::cout << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
+		return -1;
 	}
-	else
+
+	// Set the GL version
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+
+	// Tworzenie okna
+	window = SDL_CreateWindow("Shippo", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen_width, screen_height, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
+	if (window == NULL)
 	{
-
-		//Tworzenie okna
-		window = SDL_CreateWindow("Shippo", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, Screen_Width, Screen_Height, SDL_WINDOW_SHOWN);
-		if (window == NULL)
-		{
-			std::cout << "Window could not be created! SDL_Error: " << SDL_GetError();
-		}
-		else
-		{	
-			while (true) {
-				//Get window surface
-				screenSurface = SDL_GetWindowSurface(window);
-
-				//fill the surface black
-				SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0, 0, 0));
-
-				//Updating the surface
-				SDL_UpdateWindowSurface(window);
-
-				//Tymczasowa funkcja wait aby okno nie znika³o od razu
-			}
-		}
+		std::cout << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+		return -1;
 	}
+
+	// Create the OpenGL context
+	SDL_GLContext gl = SDL_GL_CreateContext(window);
+	if (gl == nullptr) {
+		std::cout << "Couldn't create OpenGL context! SDL_Error: " << SDL_GetError() << std::endl;
+	}
+	
+	while (true) {
+		// Get window surface
+		screen_surface = SDL_GetWindowSurface(window);
+
+		// Fill the surface black
+		SDL_FillRect(screen_surface, NULL, SDL_MapRGB(screen_surface->format, 0, 0, 0));
+
+		// Updating the surface
+		SDL_UpdateWindowSurface(window);
+	}
+
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 	return 0;
 };
+
+
 
 /*
 SDL2
