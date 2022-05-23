@@ -5,26 +5,21 @@
 #include <glm/glm.hpp>
 #include <glad/glad.h>
 
-//rozmiary ekranu
+// Rozmiary ekranu
 const int screen_width = 1280;
 const int screen_height = 720;
 
 int main(int argc, char* args[])
 {
- 	// Okno w którym renderowane bêd¹ obiekty
+	// Okno w którym renderowane bêd¹ obiekty
 	SDL_Window* window = NULL;
-	SDL_Surface* screen_surface = NULL;
 
 	// Inicjalizacja SDL
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
-		std::cout << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
+		std::cout << "SDL failed to initalize! SDL_Error: " << SDL_GetError() << std::endl;
 		return -1;
 	}
-
-	// Set the GL version
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 
 	// Tworzenie okna
 	window = SDL_CreateWindow("Shippo", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen_width, screen_height, SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL);
@@ -37,18 +32,56 @@ int main(int argc, char* args[])
 	// Create the OpenGL context
 	SDL_GLContext gl = SDL_GL_CreateContext(window);
 	if (gl == nullptr) {
-		std::cout << "Couldn't create OpenGL context! SDL_Error: " << SDL_GetError() << std::endl;
+		std::cout << "Failed create OpenGL context! SDL_Error: " << SDL_GetError() << std::endl;
 	}
-	
-	while (true) {
-		// Get window surface
-		screen_surface = SDL_GetWindowSurface(window);
 
-		// Fill the surface black
-		SDL_FillRect(screen_surface, NULL, SDL_MapRGB(screen_surface->format, 0, 0, 0));
+	// Initialize GLAD
+	if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress))
+	{
+		std::cout << "Failed to initialize GLAD!" << std::endl;
+		return -1;
+	}
 
-		// Updating the surface
-		SDL_UpdateWindowSurface(window);
+	// Tell OpenGL about our window size
+	glViewport(0, 0, screen_width, screen_height);
+
+	bool running = true;
+	while (running) {
+		// Poll all window events
+		SDL_Event event;
+		while (SDL_PollEvent(&event)) {
+			switch (event.type) {
+			case SDL_KEYDOWN: {
+				switch (event.key.keysym.sym) {
+				case SDLK_ESCAPE: {
+					running = false;
+				} break;
+				default: break;
+				}
+			} break;
+			case SDL_WINDOWEVENT: {
+				if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+					// Tell OpenGL that we resized the window
+					glViewport(0, 0, event.window.data1, event.window.data2);
+				}
+			} break;
+			case SDL_QUIT: {
+				running = false;
+			} break;
+			default: break;
+			}
+		}
+
+		// Set clear color
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		// Clear window
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		// Draw with OpenGL
+		// ...
+
+		// Update window with OpenGL render results
+		SDL_GL_SwapWindow(window);
 	}
 
 	SDL_DestroyWindow(window);

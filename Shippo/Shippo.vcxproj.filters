@@ -18,5 +18,16 @@
     <ClCompile Include="main.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="..\libraries\SDL2\include\glad.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\vertex_shader.glsl">
+      <Filter>Resource files</Filter>
+    </None>
+    <None Include="shaders\fragment_shader.glsl">
+      <Filter>Resource files</Filter>
+    </None>
   </ItemGroup>
 </Project>
