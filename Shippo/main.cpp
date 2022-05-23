@@ -2,11 +2,12 @@
 #include <vector>
 #include <cmath>
 #include <SDL.h>
+#include <glm/glm.hpp>
 #include <glad/glad.h>
 
 //rozmiary ekranu
 const int screen_width = 1280;
-const int screen_height = 920;
+const int screen_height = 720;
 
 int main(int argc, char* args[])
 {
@@ -54,12 +55,3 @@ int main(int argc, char* args[])
 	SDL_Quit();
 	return 0;
 };
-
-
-
-/*
-SDL2
-Po SDLu jeszcze to dograj: GLAD
-https://learnopengl.com/Getting-started/Creating-a-window#:~:text=configuration%20of%20GLFW.-,GLAD,-We%27re%20still%20not
-Zrób repo jeszcze 
-*/
