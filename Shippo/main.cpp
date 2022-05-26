@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include <glm/glm.hpp>
 #include <glad/glad.h>
+#include "Shader.hpp"
 
 // Rozmiary ekranu
 const int screen_width = 1280;
@@ -44,6 +45,8 @@ int main(int argc, char* args[])
 
 	// Tell OpenGL about our window size
 	glViewport(0, 0, screen_width, screen_height);
+
+	Shader shader = Shader::from_file("shaders/vertex_shader.glsl", "shaders/fragment_shader.glsl");
 
 	bool running = true;
 	while (running) {
