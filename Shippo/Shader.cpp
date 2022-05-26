@@ -168,6 +168,11 @@ GLuint Shader::get_uniform_location(const std::string& name) const
 	return glGetUniformLocation(get_program_handle(), name.c_str());
 }
 
+GLuint Shader::get_attribute_location(const std::string& name) const
+{
+	return glGetAttribLocation(get_program_handle(), name.c_str());
+}
+
 GLuint Shader::get_program_handle() const
 {
 	return program_handle;

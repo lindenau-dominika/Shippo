@@ -36,6 +36,7 @@ public:
 	void set_uniform(const std::string& name, const glm::mat4& value);
 
 	GLuint get_uniform_location(const std::string& name) const;
+	GLuint get_attribute_location(const std::string& name) const;
 	GLuint get_program_handle() const;
 
 private:
