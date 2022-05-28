@@ -13,20 +13,13 @@
 int screen_width = 1280;
 int screen_height = 720;
 
-float lastX = screen_width / 2;
-float lastY = screen_height / 2;
-float pitch = 0;
-float yaw = 0;
-
 const float sensitivity = 0.1f;
+float camera_distance = 5.0f;
 
-
-int xpos, ypos;
 
 	
 int main(int argc, char* args[])
 {
-	float xoffset = 0, yoffset = 0;
 	// Okno w którym renderowane bêd¹ obiekty
 	SDL_Window* window = NULL;
 
@@ -57,13 +50,11 @@ int main(int argc, char* args[])
 		std::cout << "Failed to initialize GLAD!" << std::endl;
 		return -1;
 	}
+
 	// Mouse capture
 	if (SDL_GetRelativeMouseMode() == SDL_FALSE) 
 	{
-		
 		SDL_SetRelativeMouseMode(SDL_TRUE);
-		SDL_WarpMouseInWindow(window, lastX, lastY);
-
 	}
 
 	
@@ -112,11 +103,14 @@ int main(int argc, char* args[])
 	glm::vec3 camera_up = glm::vec3(0.f, 0.f, -1.f);
 	
 	float fov = 45.f;
+	float pitch = 0;
+	float yaw = 0;
 
 	bool running = true;
 	while (running) {
 		// Poll all window events
 		SDL_Event event;
+		float xoffset = 0, yoffset = 0;
 		while (SDL_PollEvent(&event)) {
 			switch (event.type) {
 			case SDL_KEYDOWN: {
@@ -138,8 +132,7 @@ int main(int argc, char* args[])
 			} break;
 			case SDL_MOUSEMOTION: {
 				xoffset = event.motion.xrel;
-				yoffset = event.motion.yrel;;
-
+				yoffset = event.motion.yrel;
 			} break;
 			case SDL_MOUSEWHEEL: {
 				fov -= (float)event.wheel.y;
@@ -152,25 +145,26 @@ int main(int argc, char* args[])
 			}
 		}
 
-		xoffset *= sensitivity;
-		yoffset *= sensitivity;
+		// Calculate new yaw and pitch
+		yaw += xoffset * sensitivity;
+		pitch += yoffset * sensitivity;
 
-		yaw += xoffset;
-		pitch += yoffset;
-
-		if (pitch > 89.0f)
+		// Clamp pitch
+		if (pitch > 89.0f) {
 			pitch = 89.0f;
-		if (pitch < -89.0f)
+		}
+		if (pitch < -89.0f) {
 			pitch = -89.0f;
+		}
 
-		glm::vec3 direction;
+		// Calculate camera position based on view direction
+		glm::vec3 direction{};
 		direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 		direction.y = sin(glm::radians(pitch));
 		direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-		camera_pos = glm::normalize(direction) * 5.0f;
+		camera_pos = glm::normalize(direction) * camera_distance;
 
-
-
+		// Model-view-projection matrix calculations
 		glm::mat4 model = glm::mat4(1.0f);
 		//model = glm::rotate(model, glm::radians(SDL_GetTicks() / 10.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 		glm::mat4 view = glm::lookAt(camera_pos + camera_target, camera_target, up); //position, target, up vector

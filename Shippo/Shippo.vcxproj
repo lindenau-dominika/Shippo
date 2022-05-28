@@ -45,12 +45,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <ExternalIncludePath>$(SolutionDir)\libraries\SDL2\include;$(SolutionDir)\libraries\glm;$(SolutionDir)\libraries\assimp\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <ExternalIncludePath>$(SolutionDir)\libraries\SDL2\include;$(SolutionDir)\libraries\stb\include;$(SolutionDir)\libraries\glm;$(SolutionDir)\libraries\assimp\include;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>$(SolutionDir)\libraries\SDL2\lib\;$(SolutionDir)\libraries\assimp\lib\AssDebug\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <ExternalIncludePath>$(SolutionDir)\libraries\SDL2\include;$(SolutionDir)\libraries\glm;$(SolutionDir)\libraries\assimp\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <ExternalIncludePath>$(SolutionDir)\libraries\SDL2\include;$(SolutionDir)\libraries\stb\include;$(SolutionDir)\libraries\glm;$(SolutionDir)\libraries\assimp\include;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>$(SolutionDir)\libraries\assimp\lib\AssRelease\;$(SolutionDir)\libraries\SDL2\lib\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -97,6 +97,7 @@ xcopy /y /d  "$(SolutionDir)libraries\assimp\dll\AssRelease\*.dll" "$(TargetDir)
     <ClCompile Include="..\libraries\SDL2\include\glad.c" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\fragment_shader.glsl" />
@@ -104,6 +105,10 @@ xcopy /y /d  "$(SolutionDir)libraries\assimp\dll\AssRelease\*.dll" "$(TargetDir)
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Shader.hpp" />
+    <ClInclude Include="Texture.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resources\textures\graph_paper.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
