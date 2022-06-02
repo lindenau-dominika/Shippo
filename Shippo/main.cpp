@@ -9,6 +9,7 @@
 #include <assimp/scene.h>
 #include "Shader.hpp"
 #include "Texture.hpp"
+#include "Model.hpp"
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
@@ -68,50 +69,10 @@ int main(int argc, char* args[])
 
 	Shader shader = Shader::from_file("shaders/vertex_shader.glsl", "shaders/fragment_shader.glsl");
 
-	// Import the model file
-	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile("resources/models/stateczek1.obj", aiProcess_Triangulate | aiProcess_FlipUVs);
 
-	// Reporting failure of importing the file
-	if (scene == nullptr)
-	{
-		std::cout << importer.GetErrorString() << std::endl;
-		return -1;
-	}
-	
+	// Import the model
+	Model object_model("resources/models/Humvee.obj");
 
-	std::vector<float> vertices;
-	std::vector<float> tex_coords;
-	std::vector<unsigned int> indices;
-
-	std::cout << "Num of meshes: " << scene->mNumMeshes << std::endl;
-	for (int i = 0; i < scene->mNumMeshes; i++) {
-		auto mesh = scene->mMeshes[i];
-		std::cout << "Mesh: " << i << std::endl;
-		std::cout << mesh->mNumVertices << std::endl;
-		
-		for (int j = 0; j < mesh->mNumFaces; j++) {
-			auto &face = mesh->mFaces[j];
-			for (int k = 0; k < face.mNumIndices; k++) {
-				indices.push_back(face.mIndices[k]);
-			}
-		}
-
-		for (int j = 0; j < mesh->mNumVertices; j++) {
-			auto vertex = mesh->mVertices[j];
-			std::cout << "Vertex: " << j << std::endl;
-			vertices.push_back(vertex.x);
-			vertices.push_back(vertex.y);
-			vertices.push_back(vertex.z);
-
-			if (mesh->mTextureCoords[0] != nullptr) {
-				auto tex_coord = mesh->mTextureCoords[0][j];
-				tex_coords.push_back(tex_coord.x);
-				tex_coords.push_back(tex_coord.y);
-			}
-		}
-		std::cout << mesh->mNumFaces << std::endl;
-	}
 
 	// Defining camera
 	glm::vec3 camera_pos = glm::vec3(4.f, 6.f, -5.0f);
@@ -125,13 +86,7 @@ int main(int argc, char* args[])
 	float yaw = 0;
 
 	Texture texture = Texture();
-	texture.from_file("resources/textures/graph_paper.jpg");
-
-	unsigned int ebo;
-	glGenBuffers(1, &ebo);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+	texture.from_file("resources/textures/Humvee_Metallic.png");
 
 	bool running = true;
 	while (running) {
@@ -208,18 +163,7 @@ int main(int argc, char* args[])
 		shader.set_uniform("mvp", mvp);
 
 		texture.bind();
-
-		glEnableVertexAttribArray(shader.get_attribute_location("position"));
-		glVertexAttribPointer(shader.get_attribute_location("position"), 3, GL_FLOAT, false, 0, (void *)vertices.data());
-
-		glEnableVertexAttribArray(shader.get_attribute_location("vTexCoord"));
-		glVertexAttribPointer(shader.get_attribute_location("vTexCoord"), 2, GL_FLOAT, false, 0, (void*)tex_coords.data());
-
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, nullptr);
-		
-		glDisableVertexAttribArray(shader.get_attribute_location("position"));
-		glDisableVertexAttribArray(shader.get_attribute_location("vTexCoord"));
+		object_model.render(shader);
 
 
 		// Update window with OpenGL render results

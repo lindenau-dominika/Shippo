@@ -27,6 +27,12 @@
     <ClCompile Include="Texture.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\vertex_shader.glsl">
@@ -41,6 +47,15 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="Texture.hpp">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.hpp">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.hpp">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderable.hpp">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>
