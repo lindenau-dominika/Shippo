@@ -85,8 +85,9 @@ int main(int argc, char* args[])
 	float pitch = 0;
 	float yaw = 0;
 
-	Texture texture = Texture();
-	texture.from_file("resources/textures/Humvee_Metallic.png");
+	Texture albedo_texture = Texture("resources/textures/Humvee_Albedo.png", TextureType::Albedo);
+	Texture normal_texture = Texture("resources/textures/Humvee_Normal.png", TextureType::Normal);
+	Texture metallic_texture = Texture("resources/textures/Humvee_Metallic.png", TextureType::Metallic);
 
 	bool running = true;
 	while (running) {
@@ -162,7 +163,9 @@ int main(int argc, char* args[])
 		shader.use();
 		shader.set_uniform("mvp", mvp);
 
-		texture.bind();
+		albedo_texture.bind();
+		normal_texture.bind();
+		metallic_texture.bind();
 		object_model.render(shader);
 
 
