@@ -1,5 +1,6 @@
 #include "Model.hpp"
 #include <iostream>
+#include <filesystem>
 
 Model::Model(const std::string& path) {
 	load_model(path);
@@ -11,6 +12,23 @@ void Model::render(Shader& shader) const {
 	}
 }
 
+void Model::bind_texture(Shader& shader, const std::string& uniform_name, Texture& texture)
+{
+	shader.use();
+	shader.set_uniform(uniform_name, texture.unit_index());
+	texture.bind();
+}
+
+std::unordered_map<std::string, Texture>& Model::get_textures()
+{
+	return textures;
+}
+
+void Model::add_texture(std::string name, Texture&& texture)
+{
+	textures.insert({ name, std::move(texture) });
+}
+
 void Model::load_model(const std::string& path) {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
@@ -18,6 +36,42 @@ void Model::load_model(const std::string& path) {
 	if (scene == nullptr)
 	{
 		throw importer.GetErrorString();
+	}
+
+	if (scene->HasMaterials()) {
+		for (int i = 0; i < scene->mNumMaterials; i++) {
+			const aiMaterial* material = scene->mMaterials[i];
+			for (int j = 0; j < material->GetTextureCount(aiTextureType_DIFFUSE); j++) {
+				aiString texture_path;
+				auto ret = material->GetTexture(aiTextureType_DIFFUSE, j, &texture_path);
+
+				if (auto texture = scene->GetEmbeddedTexture(texture_path.C_Str())) {
+					size_t size = texture->mWidth * texture->mHeight;
+					if (texture->mHeight == 0) {
+						size = texture->mWidth;
+					}
+					
+					Texture text = Texture((unsigned char*)texture->pcData, size, TextureType::Diffuse);
+					if (text.is_valid()) {
+						std::string texture_name = texture->mFilename.C_Str();
+						auto last_slash_index = texture_name.find_last_of("/\\") + 1;
+						texture_name = texture_name.substr(last_slash_index, texture_name.find_last_of(".") - last_slash_index);
+						textures.insert({ texture_name, std::move(text) });
+					} 
+				}
+				else {
+					std::string real_texture_path = (std::filesystem::path(path).parent_path() / std::string(texture_path.C_Str())).string();
+					Texture text = Texture(real_texture_path, TextureType::Diffuse);
+					std::string texture_name = texture_path.C_Str();
+					auto last_slash_index = texture_name.find_last_of("/\\") + 1;
+					texture_name = texture_name.substr(last_slash_index, texture_name.find_last_of(".") - last_slash_index);
+					if (text.is_valid()) {
+						textures.insert({ texture_name, std::move(text) });
+					}
+				}
+			}
+			
+		}
 	}
 
 	process_node(scene, scene->mRootNode);

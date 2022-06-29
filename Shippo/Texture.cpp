@@ -7,9 +7,14 @@ Texture::Texture(const std::string& path, const TextureType& texture_type) : tex
 	generate_texture();
 }
 
+Texture::Texture(unsigned char* texture_data, size_t size, const TextureType& texture_type) : texture_type(texture_type)
+{
+	load_from_memory(texture_data, size);
+	generate_texture();
+}
+
 Texture::~Texture()
 {
-	stbi_image_free(data);
 	glDeleteTextures(1, &texture_handle);
 }
 
@@ -18,6 +23,15 @@ void Texture::load_from_file(const std::string& path)
 	data = stbi_load(path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
 	if (data == nullptr) {
 		std::cerr << "Failed to load texture " << path << std::endl;
+		return;
+	}
+}
+
+void Texture::load_from_memory(unsigned char* texture_data, size_t size)
+{
+	data = stbi_load_from_memory(texture_data, size, &width, &height, &channels, STBI_rgb_alpha);
+	if (data == nullptr) {
+		std::cerr << "Failed to load texture from memory " << (size_t)texture_data << std::endl;
 		return;
 	}
 }
@@ -46,5 +60,10 @@ int Texture::unit() const
 int Texture::unit_index() const
 {
 	return get_texture_unit_index(texture_type);
+}
+
+bool Texture::is_valid()
+{
+	return data != nullptr;
 }
 

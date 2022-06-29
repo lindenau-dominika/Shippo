@@ -36,12 +36,15 @@
     <ClCompile Include="Water.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="Ship.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\vertex_shader.glsl">
+    <None Include="shaders\ship_shader.vert">
       <Filter>Resource files</Filter>
     </None>
-    <None Include="shaders\fragment_shader.glsl">
+    <None Include="shaders\ship_shader.frag">
       <Filter>Resource files</Filter>
     </None>
     <None Include="shaders\water_shader.frag">
@@ -71,6 +74,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="Water.hpp">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Ship.hpp">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

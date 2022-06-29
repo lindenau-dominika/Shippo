@@ -99,12 +99,13 @@ xcopy /y /d  "$(SolutionDir)libraries\assimp\dll\AssRelease\*.dll" "$(TargetDir)
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Ship.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Water.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\fragment_shader.glsl" />
-    <None Include="shaders\vertex_shader.glsl" />
+    <None Include="shaders\ship_shader.frag" />
+    <None Include="shaders\ship_shader.vert" />
     <None Include="shaders\water_shader.frag" />
     <None Include="shaders\water_shader.vert" />
   </ItemGroup>
@@ -114,6 +115,7 @@ xcopy /y /d  "$(SolutionDir)libraries\assimp\dll\AssRelease\*.dll" "$(TargetDir)
     <ClInclude Include="Renderable.hpp" />
     <ClInclude Include="Resources.hpp" />
     <ClInclude Include="Shader.hpp" />
+    <ClInclude Include="Ship.hpp" />
     <ClInclude Include="Texture.hpp" />
     <ClInclude Include="Water.hpp" />
   </ItemGroup>

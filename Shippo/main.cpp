@@ -11,6 +11,7 @@
 #include "Texture.hpp"
 #include "Model.hpp"
 #include "Water.hpp"
+#include "Ship.hpp"
 #include <chrono>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
@@ -63,18 +64,13 @@ int main(int argc, char* args[])
 		SDL_SetRelativeMouseMode(SDL_TRUE);
 	}
 
-	
-	
 	// Tell OpenGL about our window size
 	glViewport(0, 0, screen_width, screen_height);
 	glEnable(GL_DEPTH_TEST);
 
-	Shader shader = Shader::from_file("shaders/vertex_shader.glsl", "shaders/fragment_shader.glsl");
+	// Create ship object
+	Ship ship;
 
-
-	// Import the model
-	Model object_model("resources/models/Humvee.obj");
-	glm::vec3 position = glm::vec3(0.0);
 
 	// Defining camera
 	glm::vec3 camera_pos = glm::vec3(4.f, 6.f, -5.0f);
@@ -86,17 +82,13 @@ int main(int argc, char* args[])
 	float pitch = 0;
 	float yaw = 0;
 
-	Texture albedo_texture = Texture("resources/textures/Humvee_Albedo.png", TextureType::Albedo);
-	Texture normal_texture = Texture("resources/textures/Humvee_Normal.png", TextureType::Normal);
-	Texture metallic_texture = Texture("resources/textures/Humvee_Metallic.png", TextureType::Metallic);
-
 	// Setup water plane
 	auto start_time = std::chrono::high_resolution_clock::now();
 	Water water_plane(1200);
 	auto current_time = std::chrono::high_resolution_clock::now();
 	std::cout << "Water generation took: " << std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count() << " ms" << std::endl;
 
-
+	// Water waves constants
 	int static_waves = 0;
 	float wave_amplitude = 0.3;
 	float wave_length = 6.4;
@@ -109,7 +101,7 @@ int main(int argc, char* args[])
 		double delta_time = (double)((now - last_time) * 1000 / (double)SDL_GetPerformanceFrequency()) * 0.001;
 		last_time = now;
 		//std::cout << delta_time << "\t FPS: " << 1 / delta_time << std::endl;
-		std::cout << "Amplitude: " << wave_amplitude << ", length: " << wave_length << std::endl;
+		//std::cout << "Amplitude: " << wave_amplitude << ", length: " << wave_length << std::endl;
 
 		// Poll all window events
 		SDL_Event event;
@@ -122,16 +114,16 @@ int main(int argc, char* args[])
 					running = false;
 				} break;
 				case SDLK_w: {
-					position.z += 100.0f * delta_time;
+					ship.move({ 0, 0, 1 });
 				} break;
 				case SDLK_s: {
-					position.z -= 100.0f * delta_time;
+					ship.move({ 0, 0, -1 });
 				} break;
 				case SDLK_a: {
-					position.x += 100.0f * delta_time;
+					ship.move({ 1, 0, 0 });
 				} break;
 				case SDLK_d: {
-					position.x -= 100.0f * delta_time;
+					ship.move({ -1, 0, 0 });
 				} break;
 				case SDLK_f: {
 					static_waves = 0;
@@ -150,6 +142,17 @@ int main(int argc, char* args[])
 				} break;
 				case SDLK_RIGHT: {
 					wave_amplitude += 0.1;
+				} break;
+				default: break;
+				}
+			} break;
+			case SDL_KEYUP: {
+				switch (event.key.keysym.sym) {
+				case SDLK_w:
+				case SDLK_s:
+				case SDLK_a:
+				case SDLK_d: {
+					ship.move({ 0, 0, 0 });
 				} break;
 				default: break;
 				}
@@ -198,12 +201,8 @@ int main(int argc, char* args[])
 		camera_pos = glm::normalize(direction) * camera_distance;
 
 		// Model-view-projection matrix calculations
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, position);
-		//model = glm::rotate(model, glm::radians(SDL_GetTicks() / 10.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		glm::mat4 view = glm::lookAt(camera_pos + position, position, up); //position, target, up vector
+		glm::mat4 view = glm::lookAt(camera_pos + ship.get_position(), ship.get_position(), up); //position, target, up vector
 		glm::mat4 projection = glm::perspective(glm::radians(fov), (float)screen_width / (float)screen_height, 0.1f, 1200.0f);
-		glm::mat4 mvp = projection * view * model;
 
 		// Set clear color
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -211,20 +210,13 @@ int main(int argc, char* args[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Draw with OpenGL
-		shader.use();
-		shader.set_uniform("mvp", mvp);
-		shader.set_uniform("model", model);
-		shader.set_uniform("lightColor", glm::vec3(1.0, 1.0, 1.0));
-		shader.set_uniform("lightPos", glm::vec3(5.2f, 10.0f, 2.0f));
-		shader.set_uniform("viewPos", camera_pos + position);
-		shader.set_uniform("albedoTexture", albedo_texture.unit_index());
-		shader.set_uniform("normalTexture", normal_texture.unit_index());
-		shader.set_uniform("metallicTexture", metallic_texture.unit_index());
+		ship.get_shader().use();
+		ship.get_shader().set_uniform("lightColor", glm::vec3(1.0, 1.0, 1.0));
+		ship.get_shader().set_uniform("lightPos", glm::vec3(5.2f, 10.0f, 2.0f));
+		ship.get_shader().set_uniform("viewPos", camera_pos + ship.get_position());
 
-		albedo_texture.bind();
-		normal_texture.bind();
-		metallic_texture.bind();
-		object_model.render(shader);
+		ship.update(delta_time, view, projection);
+		ship.render(ship.get_shader());
 
 		water_plane.update(delta_time, view, projection);
 		auto& water_shader = water_plane.get_shader();
@@ -233,7 +225,7 @@ int main(int argc, char* args[])
 		water_shader.set_uniform("waveStatic", static_waves);
 		water_shader.set_uniform("lightColor", glm::vec3(1.0, 1.0, 1.0));
 		water_shader.set_uniform("lightPos", glm::vec3(5.2f, 10.0f, 2.0f));
-		water_shader.set_uniform("viewPos", camera_pos + position);
+		water_shader.set_uniform("viewPos", camera_pos + ship.get_position());
 		water_plane.render(water_shader);
 
 		// Update window with OpenGL render results
