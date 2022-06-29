@@ -33,12 +33,21 @@
     <ClCompile Include="Mesh.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="Water.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\vertex_shader.glsl">
       <Filter>Resource files</Filter>
     </None>
     <None Include="shaders\fragment_shader.glsl">
+      <Filter>Resource files</Filter>
+    </None>
+    <None Include="shaders\water_shader.frag">
+      <Filter>Resource files</Filter>
+    </None>
+    <None Include="shaders\water_shader.vert">
       <Filter>Resource files</Filter>
     </None>
   </ItemGroup>
@@ -56,6 +65,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="Renderable.hpp">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resources.hpp">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Water.hpp">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

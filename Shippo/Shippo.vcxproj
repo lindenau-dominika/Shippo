@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -100,17 +100,22 @@ xcopy /y /d  "$(SolutionDir)libraries\assimp\dll\AssRelease\*.dll" "$(TargetDir)
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Water.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\fragment_shader.glsl" />
     <None Include="shaders\vertex_shader.glsl" />
+    <None Include="shaders\water_shader.frag" />
+    <None Include="shaders\water_shader.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Mesh.hpp" />
     <ClInclude Include="Model.hpp" />
     <ClInclude Include="Renderable.hpp" />
+    <ClInclude Include="Resources.hpp" />
     <ClInclude Include="Shader.hpp" />
     <ClInclude Include="Texture.hpp" />
+    <ClInclude Include="Water.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\textures\graph_paper.jpg" />

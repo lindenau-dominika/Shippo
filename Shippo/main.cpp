@@ -10,6 +10,8 @@
 #include "Shader.hpp"
 #include "Texture.hpp"
 #include "Model.hpp"
+#include "Water.hpp"
+#include <chrono>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
@@ -18,7 +20,7 @@ int screen_width = 1280;
 int screen_height = 720;
 
 const float sensitivity = 0.1f;
-float camera_distance = 5.0f;
+float camera_distance = 8.0f;
 
 
 	
@@ -72,11 +74,10 @@ int main(int argc, char* args[])
 
 	// Import the model
 	Model object_model("resources/models/Humvee.obj");
-
+	glm::vec3 position = glm::vec3(0.0);
 
 	// Defining camera
 	glm::vec3 camera_pos = glm::vec3(4.f, 6.f, -5.0f);
-	glm::vec3 camera_target = glm::vec3(0.f, 0.f, 0.f);
 	glm::vec3 up = glm::vec3(0.f, 1.f, 0.f);
 	glm::vec3 camera_front = glm::vec3(0.f, 0.f, -1.f);
 	glm::vec3 camera_up = glm::vec3(0.f, 0.f, -1.f);
@@ -89,8 +90,27 @@ int main(int argc, char* args[])
 	Texture normal_texture = Texture("resources/textures/Humvee_Normal.png", TextureType::Normal);
 	Texture metallic_texture = Texture("resources/textures/Humvee_Metallic.png", TextureType::Metallic);
 
+	// Setup water plane
+	auto start_time = std::chrono::high_resolution_clock::now();
+	Water water_plane(1200);
+	auto current_time = std::chrono::high_resolution_clock::now();
+	std::cout << "Water generation took: " << std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count() << " ms" << std::endl;
+
+
+	int static_waves = 0;
+	float wave_amplitude = 0.3;
+	float wave_length = 6.4;
+
 	bool running = true;
+	uint64_t last_time = SDL_GetPerformanceCounter();
 	while (running) {
+		// Calculate delta time
+		uint64_t now = SDL_GetPerformanceCounter();
+		double delta_time = (double)((now - last_time) * 1000 / (double)SDL_GetPerformanceFrequency()) * 0.001;
+		last_time = now;
+		//std::cout << delta_time << "\t FPS: " << 1 / delta_time << std::endl;
+		std::cout << "Amplitude: " << wave_amplitude << ", length: " << wave_length << std::endl;
+
 		// Poll all window events
 		SDL_Event event;
 		float xoffset = 0, yoffset = 0;
@@ -100,6 +120,36 @@ int main(int argc, char* args[])
 				switch (event.key.keysym.sym) {
 				case SDLK_ESCAPE: {
 					running = false;
+				} break;
+				case SDLK_w: {
+					position.z += 100.0f * delta_time;
+				} break;
+				case SDLK_s: {
+					position.z -= 100.0f * delta_time;
+				} break;
+				case SDLK_a: {
+					position.x += 100.0f * delta_time;
+				} break;
+				case SDLK_d: {
+					position.x -= 100.0f * delta_time;
+				} break;
+				case SDLK_f: {
+					static_waves = 0;
+				} break;
+				case SDLK_g: {
+					static_waves = 1;
+				} break;
+				case SDLK_UP: {
+					wave_length += 0.2;
+				} break;
+				case SDLK_DOWN: {
+					wave_length -= 0.2;
+				} break;
+				case SDLK_LEFT: {
+					wave_amplitude -= 0.1;
+				} break;
+				case SDLK_RIGHT: {
+					wave_amplitude += 0.1;
 				} break;
 				default: break;
 				}
@@ -149,9 +199,10 @@ int main(int argc, char* args[])
 
 		// Model-view-projection matrix calculations
 		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, position);
 		//model = glm::rotate(model, glm::radians(SDL_GetTicks() / 10.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		glm::mat4 view = glm::lookAt(camera_pos + camera_target, camera_target, up); //position, target, up vector
-		glm::mat4 projection = glm::perspective(glm::radians(fov), (float)screen_width / (float)screen_height, 0.1f, 100.0f);
+		glm::mat4 view = glm::lookAt(camera_pos + position, position, up); //position, target, up vector
+		glm::mat4 projection = glm::perspective(glm::radians(fov), (float)screen_width / (float)screen_height, 0.1f, 1200.0f);
 		glm::mat4 mvp = projection * view * model;
 
 		// Set clear color
@@ -162,12 +213,28 @@ int main(int argc, char* args[])
 		// Draw with OpenGL
 		shader.use();
 		shader.set_uniform("mvp", mvp);
+		shader.set_uniform("model", model);
+		shader.set_uniform("lightColor", glm::vec3(1.0, 1.0, 1.0));
+		shader.set_uniform("lightPos", glm::vec3(5.2f, 10.0f, 2.0f));
+		shader.set_uniform("viewPos", camera_pos + position);
+		shader.set_uniform("albedoTexture", albedo_texture.unit_index());
+		shader.set_uniform("normalTexture", normal_texture.unit_index());
+		shader.set_uniform("metallicTexture", metallic_texture.unit_index());
 
 		albedo_texture.bind();
 		normal_texture.bind();
 		metallic_texture.bind();
 		object_model.render(shader);
 
+		water_plane.update(delta_time, view, projection);
+		auto& water_shader = water_plane.get_shader();
+		water_shader.set_uniform("waveAmplitude", wave_amplitude);
+		water_shader.set_uniform("waveLength", wave_length);
+		water_shader.set_uniform("waveStatic", static_waves);
+		water_shader.set_uniform("lightColor", glm::vec3(1.0, 1.0, 1.0));
+		water_shader.set_uniform("lightPos", glm::vec3(5.2f, 10.0f, 2.0f));
+		water_shader.set_uniform("viewPos", camera_pos + position);
+		water_plane.render(water_shader);
 
 		// Update window with OpenGL render results
 		SDL_GL_SwapWindow(window);
