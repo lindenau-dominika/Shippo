@@ -10,11 +10,15 @@ Ship::Ship(glm::vec3 initial_position) : model(Resources::SHIP_MODEL_PATH), shad
 
 void Ship::update(float delta_time, glm::mat4& view, glm::mat4& projection)
 {
+	direction.x = cos(yaw);
+	direction.y = 0.0f;
+	direction.z = sin(yaw);
 	position += delta_time * speed * direction;
 
 	glm::mat4 model_matrix = glm::mat4(1.0f);
 	model_matrix = glm::translate(model_matrix, position);
 	model_matrix = glm::scale(model_matrix, glm::vec3(0.1));
+	model_matrix = glm::rotate(model_matrix, -yaw, glm::vec3(0.0, 1.0, 0.0));
 	glm::mat4 mvp = projection * view * model_matrix;
 	shader.use();
 	shader.set_uniform("mvp", mvp);

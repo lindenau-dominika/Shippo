@@ -122,16 +122,16 @@ int main(int argc, char* args[])
 
 				// Ship
 				case SDLK_w: {
-					ship.move({ 1, 0, 0 });
+					ship.on(delta_time, 1);
 				} break;
 				case SDLK_s: {
-					ship.move({ -1, 0, 0 });
+					ship.on(delta_time, -1);
 				} break;
 				case SDLK_a: {
-					ship.move({ 0, 0, -1 });
+					ship.turn(delta_time,-1);
 				} break;
 				case SDLK_d: {
-					ship.move({ 0, 0, 1 });
+					ship.turn(delta_time, 1);
 				} break;
 
 				// Light 1
@@ -213,6 +213,7 @@ int main(int argc, char* args[])
 				case SDLK_a:
 				case SDLK_d: {
 					ship.move({ 0, 0, 0 });
+					ship.off();
 				} break;
 				default: break;
 				}
