@@ -273,8 +273,10 @@ int main(int argc, char* args[])
 		// Draw with OpenGL
 		// Ship
 		ship.get_shader().use();
-		ship.get_shader().set_uniform("lightColor", light.get_color());
-		ship.get_shader().set_uniform("lightPos", light.get_position());
+		ship.get_shader().set_uniform("light1Color", light.get_color());
+		ship.get_shader().set_uniform("light1Pos", light.get_position());
+		ship.get_shader().set_uniform("light2Color", second_light.get_color());
+		ship.get_shader().set_uniform("light2Pos", second_light.get_position());
 		ship.get_shader().set_uniform("viewPos", camera_pos);
 
 		ship.update(delta_time, view, projection);
@@ -289,10 +291,10 @@ int main(int argc, char* args[])
 		water_shader.set_uniform("waveStatic", static_waves);
 
 		// Light uniforms
-		water_shader.set_uniform("lightColor", light.get_color());
-		water_shader.set_uniform("lightPos", light.get_position());
-		water_shader.set_uniform("sunColor", sun_color);
-		water_shader.set_uniform("sunDirection", sun_direction);
+		water_shader.set_uniform("light1Color", light.get_color());
+		water_shader.set_uniform("light1Pos", light.get_position());
+		water_shader.set_uniform("light2Color", second_light.get_color());
+		water_shader.set_uniform("light2Pos", second_light.get_position());
 		water_shader.set_uniform("viewPos", camera_pos);
 		water_plane.render(water_shader);
 

@@ -56,10 +56,10 @@
     <None Include="shaders\water_shader.vert">
       <Filter>Resource files</Filter>
     </None>
-    <None Include="cube_shader.vert">
+    <None Include="shaders\cube_shader.frag">
       <Filter>Resource files</Filter>
     </None>
-    <None Include="cube_shader.frag">
+    <None Include="shaders\cube_shader.vert">
       <Filter>Resource files</Filter>
     </None>
   </ItemGroup>
@@ -91,10 +91,5 @@
     <ClInclude Include="LightCube.hpp">
       <Filter>Header files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="resources\textures\graph_paper.jpg">
-      <Filter>Resource files</Filter>
-    </Image>
   </ItemGroup>
 </Project>

@@ -105,8 +105,8 @@ xcopy /y /d  "$(SolutionDir)libraries\assimp\dll\AssRelease\*.dll" "$(TargetDir)
     <ClCompile Include="Water.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="cube_shader.frag" />
-    <None Include="cube_shader.vert" />
+    <None Include="shaders\cube_shader.frag" />
+    <None Include="shaders\cube_shader.vert" />
     <None Include="shaders\ship_shader.frag" />
     <None Include="shaders\ship_shader.vert" />
     <None Include="shaders\water_shader.frag" />
@@ -122,9 +122,6 @@ xcopy /y /d  "$(SolutionDir)libraries\assimp\dll\AssRelease\*.dll" "$(TargetDir)
     <ClInclude Include="Ship.hpp" />
     <ClInclude Include="Texture.hpp" />
     <ClInclude Include="Water.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="resources\textures\graph_paper.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
