@@ -10,7 +10,13 @@ uniform float waveAmplitude;
 uniform float waveLength;
 uniform int waveStatic;
 
-float generateOffset(float x, float z, float value1, float value2, float time) {
+out vec4 fWaterColor;
+uniform vec4 waterColor;
+
+
+const float PI = 3.14159;
+
+float calculateOffset(float x, float z, float value1, float value2, float time) {
     float speed = 1.0;
 
     // Hesus what is this
@@ -25,17 +31,25 @@ float generateOffset(float x, float z, float value1, float value2, float time) {
     return waveAmplitude * 0.5 * (sin(radiansZ) + cos(radiansX));
 }
 
-vec3 applyDistortion(vec3 vertex, float time) {
-    float xd = generateOffset(vertex.x, vertex.z, 0.2, 0.1, time);
-    float yd = generateOffset(vertex.x, vertex.z, 0.1, 0.3, time);
-    float zd = generateOffset(vertex.x, vertex.z, 0.15, 0.2, time);
-    return vertex + vec3(xd, yd, zd);
+vec3 applyWaves(vec3 vertex, float time) {
+    float dx = calculateOffset(vertex.x, vertex.z, 0.2, 0.1, time);
+    float dy = calculateOffset(vertex.x, vertex.z, 0.1, 0.3, time);
+    float dz = calculateOffset(vertex.x, vertex.z, 0.15, 0.2, time);
+
+    return vertex + vec3(dx, dy, dz);
 }
 
 
 void main()
 {
-    vec3 vertex = applyDistortion(iPosition, time * 0.2);
+    vec3 vertex = applyWaves(iPosition, time * 0.2);
     gl_Position = mvp * vec4(vertex, 1.0);
     fragPos = vec3(model * vec4(iPosition, 1.0));
+
+    float waterScale = (vertex.y + waveAmplitude) / (2 * waveAmplitude);
+    float minColorScale = 0.6;
+    float convertedColorScale = (waterScale * (1 - minColorScale)) + minColorScale;
+
+    fWaterColor = waterColor * convertedColorScale;
+
 }
