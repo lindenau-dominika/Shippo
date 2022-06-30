@@ -39,6 +39,9 @@
     <ClCompile Include="Ship.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="LightCube.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\ship_shader.vert">
@@ -51,6 +54,12 @@
       <Filter>Resource files</Filter>
     </None>
     <None Include="shaders\water_shader.vert">
+      <Filter>Resource files</Filter>
+    </None>
+    <None Include="cube_shader.vert">
+      <Filter>Resource files</Filter>
+    </None>
+    <None Include="cube_shader.frag">
       <Filter>Resource files</Filter>
     </None>
   </ItemGroup>
@@ -77,6 +86,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="Ship.hpp">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="LightCube.hpp">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

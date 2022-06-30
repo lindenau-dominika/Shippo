@@ -8,6 +8,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include "Shader.hpp"
+#include "LightCube.hpp"
 #include "Texture.hpp"
 #include "Model.hpp"
 #include "Water.hpp"
@@ -20,9 +21,13 @@
 int screen_width = 1280;
 int screen_height = 720;
 
-const float sensitivity = 0.1f;
+const float sensitivity = 0.4f;
 float camera_distance = 8.0f;
 
+const glm::vec3 WHITE_LIGHT_COLOR = glm::vec3(1.0, 1.0, 1.0);
+const glm::vec3 GREEN_LIGHT_COLOR = glm::vec3(0.3, 1.0, 0.3);
+const glm::vec3 RED_LIGHT_COLOR = glm::vec3(1.0, 0.3, 0.3);
+const glm::vec3 YELLOW_LIGHT_COLOR = glm::vec3(1.0, 1.0, 0.3);	
 
 	
 int main(int argc, char* args[])
@@ -71,13 +76,7 @@ int main(int argc, char* args[])
 	// Create ship object
 	Ship ship;
 
-
 	// Defining camera
-	glm::vec3 camera_pos = glm::vec3(4.f, 6.f, -5.0f);
-	glm::vec3 up = glm::vec3(0.f, 1.f, 0.f);
-	glm::vec3 camera_front = glm::vec3(0.f, 0.f, -1.f);
-	glm::vec3 camera_up = glm::vec3(0.f, 0.f, -1.f);
-	
 	float fov = 45.f;
 	float pitch = 0;
 	float yaw = 0;
@@ -93,6 +92,13 @@ int main(int argc, char* args[])
 	float wave_amplitude = 0.3;
 	float wave_length = 6.4;
 
+	// Light constants
+	LightCube light = LightCube(glm::vec3(5.2f, 7.0f, 2.0f), WHITE_LIGHT_COLOR);
+	LightCube second_light = LightCube(glm::vec3(14.0f, 11.0f, 7.0f), WHITE_LIGHT_COLOR);
+
+	glm::vec3 sun_color = glm::vec3(1.0, 1.0, 1.0);
+	glm::vec3 sun_direction = glm::normalize(glm::vec3(0.64, -0.56, -0.5f));
+	
 	bool running = true;
 	uint64_t last_time = SDL_GetPerformanceCounter();
 	while (running) {
@@ -102,7 +108,7 @@ int main(int argc, char* args[])
 		last_time = now;
 		//std::cout << delta_time << "\t FPS: " << 1 / delta_time << std::endl;
 		//std::cout << "Amplitude: " << wave_amplitude << ", length: " << wave_length << std::endl;
-
+		
 		// Poll all window events
 		SDL_Event event;
 		float xoffset = 0, yoffset = 0;
@@ -113,22 +119,68 @@ int main(int argc, char* args[])
 				case SDLK_ESCAPE: {
 					running = false;
 				} break;
+
+				// Ship
 				case SDLK_w: {
-					ship.move({ 0, 0, 1 });
-				} break;
-				case SDLK_s: {
-					ship.move({ 0, 0, -1 });
-				} break;
-				case SDLK_a: {
 					ship.move({ 1, 0, 0 });
 				} break;
-				case SDLK_d: {
+				case SDLK_s: {
 					ship.move({ -1, 0, 0 });
 				} break;
-				case SDLK_f: {
-					static_waves = 0;
+				case SDLK_a: {
+					ship.move({ 0, 0, -1 });
+				} break;
+				case SDLK_d: {
+					ship.move({ 0, 0, 1 });
+				} break;
+
+				// Light 1
+				case SDLK_y: {
+					light.set_position(light.get_position() + glm::vec3(1, 0, 0));
+				} break;
+				case SDLK_h: {
+					light.set_position(light.get_position() + glm::vec3(-1, 0, 0));
 				} break;
 				case SDLK_g: {
+					light.set_position(light.get_position() + glm::vec3(0, 0, -1));
+				} break;
+				case SDLK_j: {
+					light.set_position(light.get_position() + glm::vec3(0, 0, 1));
+				} break;
+
+				// Light 1 Colors
+				case SDLK_1: {
+					light.set_color(WHITE_LIGHT_COLOR);
+				} break;
+				case SDLK_2: {
+					light.set_color(RED_LIGHT_COLOR);
+				} break;
+				case SDLK_3: {
+					light.set_color(GREEN_LIGHT_COLOR);
+				} break;
+				case SDLK_4: {
+					light.set_color(YELLOW_LIGHT_COLOR);
+				} break;
+
+				// Light 2 Colors
+				case SDLK_6: {
+					second_light.set_color(WHITE_LIGHT_COLOR);
+				} break;
+				case SDLK_7: {
+					second_light.set_color(RED_LIGHT_COLOR);
+				} break;
+				case SDLK_8: {
+					second_light.set_color(GREEN_LIGHT_COLOR);
+				} break;
+				case SDLK_9: {
+					second_light.set_color(YELLOW_LIGHT_COLOR);
+				} break;
+
+				// Waves
+				case SDLK_z: {
+					static_waves = 0;
+				} break;
+				case SDLK_x: {
 					static_waves = 1;
 				} break;
 				case SDLK_UP: {
@@ -142,6 +194,14 @@ int main(int argc, char* args[])
 				} break;
 				case SDLK_RIGHT: {
 					wave_amplitude += 0.1;
+				} break;
+
+				// Debug
+				case SDLK_l: {
+					ship.print_textures();
+				} break;
+				case SDLK_k: {
+					std::cout << "Amplitude: " << wave_amplitude << ", length: " << wave_length << std::endl;
 				} break;
 				default: break;
 				}
@@ -171,11 +231,11 @@ int main(int argc, char* args[])
 				yoffset = event.motion.yrel;
 			} break;
 			case SDL_MOUSEWHEEL: {
-				fov -= (float)event.wheel.y;
-				if (fov < 10.0f) 
-					fov = 10.0f;
-				if (fov > 60.f) 
-					fov = 60.f;
+				camera_distance -= (float)event.wheel.y;
+				if (camera_distance < 4.0f)
+					camera_distance = 4.0f;
+				if (camera_distance > 30.f)
+					camera_distance = 30.0f;
 			}
 			default: break;
 			}
@@ -189,8 +249,8 @@ int main(int argc, char* args[])
 		if (pitch > 89.0f) {
 			pitch = 89.0f;
 		}
-		if (pitch < -89.0f) {
-			pitch = -89.0f;
+		if (pitch < 4) {
+			pitch = 4;
 		}
 
 		// Calculate camera position based on view direction
@@ -198,10 +258,11 @@ int main(int argc, char* args[])
 		direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 		direction.y = sin(glm::radians(pitch));
 		direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-		camera_pos = glm::normalize(direction) * camera_distance;
+		direction = glm::normalize(direction) * camera_distance;
+		glm::vec3 camera_pos = ship.get_position() + direction;
 
 		// Model-view-projection matrix calculations
-		glm::mat4 view = glm::lookAt(camera_pos + ship.get_position(), ship.get_position(), up); //position, target, up vector
+		glm::mat4 view = glm::lookAt(camera_pos, ship.get_position(), glm::vec3(0.0, 1.0, 0.0)); //position, target, up vector
 		glm::mat4 projection = glm::perspective(glm::radians(fov), (float)screen_width / (float)screen_height, 0.1f, 1200.0f);
 
 		// Set clear color
@@ -210,26 +271,41 @@ int main(int argc, char* args[])
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Draw with OpenGL
+		// Ship
 		ship.get_shader().use();
-		ship.get_shader().set_uniform("lightColor", glm::vec3(1.0, 1.0, 1.0));
-		ship.get_shader().set_uniform("lightPos", glm::vec3(5.2f, 10.0f, 2.0f));
-		ship.get_shader().set_uniform("viewPos", camera_pos + ship.get_position());
+		ship.get_shader().set_uniform("lightColor", light.get_color());
+		ship.get_shader().set_uniform("lightPos", light.get_position());
+		ship.get_shader().set_uniform("viewPos", camera_pos);
 
 		ship.update(delta_time, view, projection);
 		ship.render(ship.get_shader());
 
+		// Water
 		water_plane.update(delta_time, view, projection);
 		auto& water_shader = water_plane.get_shader();
+		// Wave uniforms
 		water_shader.set_uniform("waveAmplitude", wave_amplitude);
 		water_shader.set_uniform("waveLength", wave_length);
 		water_shader.set_uniform("waveStatic", static_waves);
-		water_shader.set_uniform("lightColor", glm::vec3(1.0, 1.0, 1.0));
-		water_shader.set_uniform("lightPos", glm::vec3(5.2f, 10.0f, 2.0f));
-		water_shader.set_uniform("viewPos", camera_pos + ship.get_position());
+
+		// Light uniforms
+		water_shader.set_uniform("lightColor", light.get_color());
+		water_shader.set_uniform("lightPos", light.get_position());
+		water_shader.set_uniform("sunColor", sun_color);
+		water_shader.set_uniform("sunDirection", sun_direction);
+		water_shader.set_uniform("viewPos", camera_pos);
 		water_plane.render(water_shader);
+
+		// Light cubes
+		light.update(view, projection);
+		light.render(light.get_shader());
+
+		second_light.update(view, projection);
+		second_light.render(second_light.get_shader());
 
 		// Update window with OpenGL render results
 		SDL_GL_SwapWindow(window);
+		SDL_Delay(10);
 	}
 
 

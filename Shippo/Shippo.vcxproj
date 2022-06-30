@@ -95,6 +95,7 @@ xcopy /y /d  "$(SolutionDir)libraries\assimp\dll\AssRelease\*.dll" "$(TargetDir)
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\libraries\SDL2\include\glad.c" />
+    <ClCompile Include="LightCube.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -104,12 +105,15 @@ xcopy /y /d  "$(SolutionDir)libraries\assimp\dll\AssRelease\*.dll" "$(TargetDir)
     <ClCompile Include="Water.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="cube_shader.frag" />
+    <None Include="cube_shader.vert" />
     <None Include="shaders\ship_shader.frag" />
     <None Include="shaders\ship_shader.vert" />
     <None Include="shaders\water_shader.frag" />
     <None Include="shaders\water_shader.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="LightCube.hpp" />
     <ClInclude Include="Mesh.hpp" />
     <ClInclude Include="Model.hpp" />
     <ClInclude Include="Renderable.hpp" />

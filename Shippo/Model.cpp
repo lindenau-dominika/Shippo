@@ -36,7 +36,6 @@ void Model::add_texture_uniform_name(std::string name, std::string uniform_name)
 		if (mesh.get_texture_name() == name) {
 			mesh.apply_texture_uniform_name(uniform_name);
 			Texture* texture = &textures[name];
-			std::cout << (size_t)texture << std::endl;
 			mesh.apply_texture(texture);
 		}
 	}

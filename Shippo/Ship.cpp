@@ -21,9 +21,9 @@ void Ship::update(float delta_time, glm::mat4& view, glm::mat4& projection)
 	shader.set_uniform("model", model_matrix);
 
 	auto& textures = model.get_textures();
-	model.add_texture_uniform_name("woodenpanles", "albedoTexture");
-	model.add_texture_uniform_name("metal", "albedoTexture");
-	model.add_texture_uniform_name("darkwood", "albedoTexture");
+	model.add_texture_uniform_name("woodenpanles", "diffuseTexture");
+	model.add_texture_uniform_name("metal", "diffuseTexture");
+	model.add_texture_uniform_name("darkwood", "diffuseTexture");
 }
 
 void Ship::render(Shader& shader) const
