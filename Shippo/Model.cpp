@@ -29,6 +29,19 @@ void Model::add_texture(std::string name, Texture&& texture)
 	textures.insert({ name, std::move(texture) });
 }
 
+void Model::add_texture_uniform_name(std::string name, std::string uniform_name)
+{
+	texture_uniform_names[name] = uniform_name;
+	for (auto& mesh : meshes) {
+		if (mesh.get_texture_name() == name) {
+			mesh.apply_texture_uniform_name(uniform_name);
+			Texture* texture = &textures[name];
+			std::cout << (size_t)texture << std::endl;
+			mesh.apply_texture(texture);
+		}
+	}
+}
+
 void Model::load_model(const std::string& path) {
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals);
@@ -41,6 +54,19 @@ void Model::load_model(const std::string& path) {
 	if (scene->HasMaterials()) {
 		for (int i = 0; i < scene->mNumMaterials; i++) {
 			const aiMaterial* material = scene->mMaterials[i];
+			/*std::cout << "Index: " << i << std::endl;
+			std::cout << "Diffuse textures: " << material->GetTextureCount(aiTextureType_DIFFUSE) << std::endl;
+			std::cout << "Specular textures: " << material->GetTextureCount(aiTextureType_SPECULAR) << std::endl;
+			std::cout << "Normal textures: " << material->GetTextureCount(aiTextureType_HEIGHT) << std::endl;
+			for (int k = 0; k < 19; k++) {
+				if (k == aiTextureType_DIFFUSE || k == aiTextureType_SPECULAR || k == aiTextureType_HEIGHT) {
+					continue;
+				}
+				int count = material->GetTextureCount((aiTextureType)k);
+				if (count != 0) {
+					std::cout << k << ": " << count << std::endl;
+				}
+			}*/
 			for (int j = 0; j < material->GetTextureCount(aiTextureType_DIFFUSE); j++) {
 				aiString texture_path;
 				auto ret = material->GetTexture(aiTextureType_DIFFUSE, j, &texture_path);
@@ -57,6 +83,7 @@ void Model::load_model(const std::string& path) {
 						auto last_slash_index = texture_name.find_last_of("/\\") + 1;
 						texture_name = texture_name.substr(last_slash_index, texture_name.find_last_of(".") - last_slash_index);
 						textures.insert({ texture_name, std::move(text) });
+						texture_indexes.insert({ i, texture_name });
 					} 
 				}
 				else {
@@ -67,6 +94,7 @@ void Model::load_model(const std::string& path) {
 					texture_name = texture_name.substr(last_slash_index, texture_name.find_last_of(".") - last_slash_index);
 					if (text.is_valid()) {
 						textures.insert({ texture_name, std::move(text) });
+						texture_indexes.insert({ i, texture_name });
 					}
 				}
 			}
@@ -124,5 +152,5 @@ Mesh Model::process_mesh(const aiScene* scene, aiMesh* mesh)
 		}		
 	}
 
-	return Mesh(vertices, indices);
+	return Mesh(vertices, indices, texture_indexes[mesh->mMaterialIndex]);
 }

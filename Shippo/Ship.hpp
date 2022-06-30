@@ -19,6 +19,7 @@ public:
 	void move(glm::vec3 dir);
 	glm::vec3 get_position();
 	Model& get_model();
+	void print_textures();
 
 private:
 	glm::vec3 position;

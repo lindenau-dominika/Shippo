@@ -1,6 +1,6 @@
 #include "Mesh.hpp"
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices) : vertices(vertices), indices(indices)
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::string texture_name) : vertices(vertices), indices(indices), texture_name(texture_name)
 {
 	setup();
 }
@@ -10,8 +10,18 @@ void Mesh::render(Shader& shader) const
 	shader.use();
 
 	glBindVertexArray(vao);
+	if (texture != nullptr) {
+		shader.set_uniform(texture_uniform_name, texture->unit_index());
+		texture->bind();
+	}
+
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+}
+
+void Mesh::apply_texture(Texture* texture)
+{
+	this->texture = texture;
 }
 
 void Mesh::setup()

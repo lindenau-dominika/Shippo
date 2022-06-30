@@ -21,7 +21,9 @@ void Ship::update(float delta_time, glm::mat4& view, glm::mat4& projection)
 	shader.set_uniform("model", model_matrix);
 
 	auto& textures = model.get_textures();
-	model.bind_texture(shader, "albedoTexture", textures["woodenpanles"]);
+	model.add_texture_uniform_name("woodenpanles", "albedoTexture");
+	model.add_texture_uniform_name("metal", "albedoTexture");
+	model.add_texture_uniform_name("darkwood", "albedoTexture");
 }
 
 void Ship::render(Shader& shader) const
@@ -45,4 +47,11 @@ glm::vec3 Ship::get_position() {
 
 Model& Ship::get_model() {
 	return model;
+}
+
+void Ship::print_textures()
+{
+	for (auto& [k, v] : model.get_textures()) {
+		std::cout << k << "\t";
+	} std::cout << std::endl;
 }

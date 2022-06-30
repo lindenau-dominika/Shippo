@@ -36,7 +36,6 @@ public:
 	Texture(unsigned char* texture_data, size_t size, const TextureType& texture_type);
 	Texture(const Texture&) = delete;
 	Texture& operator=(const Texture&) = delete;
-
 	~Texture();
 
 	void load_from_file(const std::string& path);
